@@ -13,3 +13,6 @@
 	src: url('/fonts/Ubuntu-Bold.ttf');
 	font-weight: bold;
 }
+html {
+	scroll-behavior: smooth;
+}

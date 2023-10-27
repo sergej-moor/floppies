@@ -1,15 +1,26 @@
 <script lang="ts">
 	import P5, { type Sketch } from 'p5-svelte';
 	import { onMount } from 'svelte';
+
 	let artboard;
 	let sketch: Sketch;
 
 	let artboardWidth = 300;
 	let artboardHeight = 200;
 
+	let canvas;
+	let CCapture;
+	let capturer: CCapture;
+	onMount(async () => {
+		const module = await import('$lib/CCapture.all.min.js');
+		CCapture = module.default;
+		// Use CCapture.js here
+		capturer = new CCapture({ format: 'webm', framerate: 60, verbose: true });
+	});
+
 	sketch = (p5) => {
 		p5.setup = () => {
-			p5.createCanvas(artboardWidth, artboardHeight);
+			canvas = p5.createCanvas(artboardWidth, artboardHeight);
 		};
 
 		let colors = [
@@ -26,11 +37,22 @@
 		];
 		let yoffs = new Array(colors.length).fill(0.0);
 		p5.draw = () => {
+			if (p5.frameCount === 1) {
+				capturer.start();
+			}
+
+			if (p5.frameCount < 60){
+				capturer.capture(canvas)
+			}else{
+				capturer.save();
+				capturer.stop();
+			}
+
 			p5.background(colors[9]);
 
 			for (let index = 0; index < colors.length; index++) {
 				const element = colors[index];
-				drawWave(element, index, 100, 0.1 + index * 0.02, 0.01, 15 * index, 10 );
+				drawWave(element, index, 100, 0.1 + index * 0.02, 0.01, 15 * index, 10);
 			}
 
 			/* drawWave('#252A34', 0, 40, 0.08, 0.01, -20);
@@ -59,7 +81,7 @@
 					// Calculate a y value according to noise, map to
 
 					let y = p5.map(p5.noise(xoff, yoffs[yoffsindex]), 0, 1, height, 20);
-					p5.vertex(x, y + yoffset -20);
+					p5.vertex(x, y + yoffset - 20);
 					// Increment x dimension for noise
 					xoff += xdim;
 				}
@@ -71,8 +93,6 @@
 			}
 		};
 	};
-
-	onMount(async () => {});
 </script>
 
 <div class="justify-center flex p-8">

@@ -8,5 +8,6 @@ export default {
 			heading: ['UbuntuBold', 'sans-serif']
 		}
 	},
-	plugins: []
+	plugins: [],
+
 };
